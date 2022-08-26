@@ -192,11 +192,11 @@ def usage_demo():
     # with open(__file__) as file:
     #     lines = file.readlines()
     lines = []
-    for num in range(1, 2000):
+    for num in range(1, 8):  # previous values 2000
         lines.append(f'This is line {num}')
 
     line = 0
-    batch_size = 10
+    batch_size = 10   # previous values 10
     received_lines = [None]*len(lines)
     print(f"Sending file lines in batches of {batch_size} as messages.")
     while line < len(lines):
@@ -206,7 +206,7 @@ def usage_demo():
         send_messages(queue, messages)
         print('.', end='')
         sys.stdout.flush()
-    print(f"Done. Sent {len(lines) - 1} messages.")
+    print(f"Done. Sent {len(lines)} messages.")
 
     # print(f"Receiving, handling, and deleting messages in batches of {batch_size}.")
     # more_messages = True

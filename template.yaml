@@ -5,10 +5,21 @@ Description: >
 
   Sample SAM Template for sqs-lambda
 
+# DLQ stuff came from https://cloudkatha.com/how-to-configure-aws-sqs-dead-letter-queue-using-cloudformation/
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
     Timeout: 3
+
+Parameters:
+  MySqsQueueName:
+    Type: String
+    Description: Standard Queue Name
+    Default: my-sqs-queue
+  MyDeadLetterQueueName:
+    Type: String
+    Description: DLQ Queue Name
+    Default: my-dead-letter-queue
 
 Resources:
   HelloWorldFunction:
@@ -41,6 +52,18 @@ Resources:
 
   MySqsQueue:
     Type: AWS::SQS::Queue
+    Properties:
+      # commented because I didn't want to change the name
+      # QueueName: !Ref MySourceQueueName
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt MyDeadLetterQueue.Arn
+
+        maxReceiveCount: 2
+
+  MyDeadLetterQueue:
+    Type: AWS::SQS::Queue
+#    Properties:
+#      QueueName: !Ref MyDeadLetterQueueName
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
@@ -55,3 +78,15 @@ Outputs:
   HelloWorldFunctionIamRole:
     Description: "Implicit IAM Role created for Hello World function"
     Value: !GetAtt HelloWorldFunctionRole.Arn
+  SourceQueueURL:
+    Description: URL of Source Queue
+    Value: !Ref MySqsQueue
+  SourceQueueARN:
+    Description: ARN of source queue
+    Value: !GetAtt MySqsQueue.Arn
+  DeadLetterQueueURL:
+    Description: URL of dead-letter queue
+    Value: !Ref MyDeadLetterQueue
+  DeadLetterQueueARN:
+    Description: ARN of dead-letter queue
+    Value: !GetAtt MyDeadLetterQueue.Arn
